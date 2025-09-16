@@ -8,8 +8,9 @@
 		}
 		catch(Exception ex)
 		{
-			context.Response.StatusCode = 500;
-			await context.Response.WriteAsync(ex.ToString());
+			context.Response.StatusCode = 400;
+			context.Response.ContentType = "text/plain";
+			await context.Response.WriteAsync(ex.Message);
 		}
 	}
 }

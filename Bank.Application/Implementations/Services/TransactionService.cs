@@ -18,6 +18,8 @@ public class TransactionService : ITransactionService
 
 	public async Task<bool> CreateTransactionAsync(TransactionCreateDto dto)
 	{
+		if(dto.Amount <= 0)
+			throw new Exception("Amount must be greater than 0");
 		string fromAccQuery = "SELECT * FROM accounts WHERE id = @id";
 		string toAccQuery = "SELECT COUNT(*) FROM accounts WHERE id = @id";
 		string decQuery = "UPDATE accounts SET balance = balance - @amount WHERE id = @id";
@@ -28,19 +30,14 @@ public class TransactionService : ITransactionService
 		{
 			bool success = true;
 			acc = await conn.QueryFirstOrDefaultAsync<Account>(fromAccQuery, new { id = dto.FromAccountId });
-			try
-			{
-				if(acc is null)
-					throw new Exception();
-				if(acc.Balance < dto.Amount)
-					throw new Exception();
-				if(await conn.ExecuteScalarAsync<int>(toAccQuery, new { id = dto.ToAccountId }) < 1)
-					throw new Exception();
-			}
-			catch
-			{
+			if(acc is null)
+				throw new Exception("Account not found");
+			if(await conn.ExecuteScalarAsync<int>(toAccQuery, new { id = dto.ToAccountId }) < 1)
+				throw new Exception("Account not found");
+
+			if(acc.Balance < dto.Amount)
 				success = false;
-			}
+
 			Transaction entity = new()
 			{
 				Amount = dto.Amount,
@@ -70,6 +67,8 @@ public class TransactionService : ITransactionService
 
 	public async Task<GetManyDto<Transaction>> GetSuspiciousTransactionsAsync(decimal maxAmount = 10000, int maxTransactions = 5, int page = 1, int pageSize = 50)
 	{
+		if(pageSize >= 100)
+			pageSize = 100;
 		string totalQuery = """
 			select
 				count(*)
@@ -117,6 +116,8 @@ public class TransactionService : ITransactionService
 
 	public async Task<IEnumerable<CustomerGetDto>> GetTopCustomersAsync(int count = 5)
 	{
+		if(count >= 50)
+			count = 50;
 		string query = """
 			select
 				c.id,
@@ -138,6 +139,8 @@ public class TransactionService : ITransactionService
 
 	public async Task<GetManyDto<Transaction>> GetTransactionsFilteredAsync(int? customerId = null, DateTime? dateFrom = null, DateTime? dateTo = null, decimal? minAmount = null, decimal? maxAmount = null, string? status = null, int page = 1, int pageSize = 50)
 	{
+		if(pageSize >= 100)
+			pageSize = 100;
 		dateFrom ??= DateTime.MinValue;
 		dateTo ??= DateTime.MaxValue;
 		string totalQuery = """
