@@ -1,4 +1,6 @@
-﻿public class ExceptionHandlerMiddleware : IMiddleware
+﻿namespace Bank.Api.Middlewares;
+
+public class ExceptionHandlingMiddleware : IMiddleware
 {
 	public async Task InvokeAsync(HttpContext context, RequestDelegate next)
 	{

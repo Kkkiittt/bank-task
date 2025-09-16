@@ -1,3 +1,4 @@
+using Bank.Api.Middlewares;
 using Bank.Application.Implementations.Services;
 using Bank.Application.Interfaces;
 using Bank.Application.Interfaces.Services;
@@ -14,7 +15,7 @@ builder.Services.AddScoped<IDatabase, PostgresDatabase>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
-builder.Services.AddScoped<ExceptionHandlerMiddleware>();
+builder.Services.AddScoped<ExceptionHandlingMiddleware>();
 
 var app = builder.Build();
 
@@ -31,7 +32,7 @@ app.UseAuthorization();
 
 
 
-app.UseMiddleware<ExceptionHandlerMiddleware>();
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.MapControllers();
 
