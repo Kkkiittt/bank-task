@@ -125,7 +125,8 @@ public class TransactionService : ITransactionService
 				sum(amount) as turnover
 			from transactions as t
 			join accounts as a on t.fromAccountId = a.id
-			join customers as c on a.customerId = c.id
+			join accounts as a1 on t.toAccountId = a1.id
+			join customers as c on a.customerId = c.id or a1.customerId = c.id
 			where t.status='Success'
 			group by c.id,c.name
 			order by sum(amount) desc
